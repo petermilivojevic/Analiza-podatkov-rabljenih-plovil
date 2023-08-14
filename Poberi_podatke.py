@@ -1,38 +1,14 @@
-import requests
-from Preberi_podatke import vzorec, izloci_podatke_bark
-from Orodja import ime_datoteke, izloci_gnezdene_podatke, zapisi_csv
-import csv
+from Orodja import izloci_gnezdene_podatke, zapisi_csv, pripravi_podatke, zapisi_html
 
-st_strani = 59
-for i in range(st_strani):
-    if i == 0:
-        url = (
-        'https://www.boat24.com/en/secondhandboats/?src=&cat=&whr=EUR&prs_min=&prs_max=&lge_min=1&lge_max=999&bre_min=1&bre_max=999&rgo%5B%5D=51&rgo%5B%5D=31&jhr_min=1&jhr_max=2024&sort=lgedesc'
-    )
-    else:
-        url = (
-            'https://www.boat24.com/en/secondhandboats/?bre_max=999&bre_min=1&jhr_max=2024&jhr_min=1&lge_max=999&lge_min=1&'
-            f'page={20 * i}&rgo%5B0%5D=51&rgo%5B1%5D=31&sort=lgedesc'
-    )
-    response = requests.get(url)
-    with open(ime_datoteke(i), 'w') as dat:
-        dat.write(response.text) 
+zapisi_html()
 
-barke = []
-for i in range(st_strani):
-    with open(ime_datoteke(i)) as dat:
-        vsebina = dat.read()
-    for blok in vzorec.finditer(vsebina):
-        if blok['cena'] != '' and blok['kategorija'] != '':
-            barke.append(izloci_podatke_bark(blok.group(0)))
-
-imena_polj = ['id', 'ime', 'kategorija', 'dolzina', 'sirina', 'leto', 'uporabljenost', 'cena', 'lokacija']
-with open('barke.csv', 'w', newline='') as dat:
-    pisatelj = csv.DictWriter(dat, fieldnames=imena_polj)
-    pisatelj.writeheader()
-    for barka in barke:
-        pisatelj.writerow(barka)
+barke = pripravi_podatke()
+imena_polj = [
+    'id', 'ime', 'kategorija', 'dolzina', 'sirina',
+    'leto', 'uporabljenost', 'cena', 'lokacija'
+    ]
+zapisi_csv(barke, imena_polj, 'barke.csv')
 
 kategorije = izloci_gnezdene_podatke(barke)
-zapisi_csv(barke, ['id', 'ime', 'dolzina', 'sirina', 'leto', 'uporabljenost', 'cena', 'lokacija'], 'barke_brez_kategorij.csv')
+zapisi_csv(barke, imena_polj[:2] + imena_polj[3:], 'barke_brez_kategorij.csv')
 zapisi_csv(kategorije, ['id', 'kategorija'], 'kategorije.csv')

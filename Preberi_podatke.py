@@ -25,3 +25,7 @@ def izloci_podatke_bark(blok):
     barka['cena'] = barka['cena'].replace('.', '')
     barka['lokacija'] = barka['lokacija']
     return barka
+
+pot_html ='C:/Users/peter/Documents/Faks/UvP/Analiza-podatkov-rabljenih-plovil/Barke_html'
+pot_csv = 'C:/Users/peter/Documents/Faks/UvP/Analiza-podatkov-rabljenih-plovil/Barke_csv'
+st_html = 60
